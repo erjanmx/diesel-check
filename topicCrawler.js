@@ -3,8 +3,31 @@ const Crawler = require("crawler")
 
 const regexTotalPagesCount = /totalPages: ([\d]+), anchor/;
 
+const low = require('lowdb')
+const FileSync = require('lowdb/adapters/FileSync')
+
+const adapter = new FileSync('db.json')
+const db = low(adapter)
+
+// Set some defaults (required if your JSON file is empty)
+db.defaults({ topics: [] }).write()
+
 function save(topic) {
-    console.log(topic);
+    let t = db.get('topics').find({ url: topic.url }).value();
+    if (t === undefined) {
+       db.get('topics')
+          .push(topic)
+          .write()	
+    } else {
+    
+    }
+    
+/*
+        .assign({ title: 'hi!'})
+  	.write()
+*/
+   
+   console.log(topic.title);
 }
 
 const crawler = new Crawler({
@@ -34,6 +57,6 @@ const crawler = new Crawler({
 });
 
 crawler.queue([{
-    html: fs.readFileSync('pages/1.html', 'utf8')
+    html: fs.readFileSync('pages/topic.html', 'utf8')
 }]);
 
