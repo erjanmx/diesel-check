@@ -1,12 +1,14 @@
-const Crawler = require("crawler")
+const _ = require('lodash');
+const winston = require('winston')
+const crawler = require("crawler")
 
 const lowDb = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
-const db = lowDb(new FileSync('db.json'))
+const fileSync = require('lowdb/adapters/FileSync')
+const db = lowDb(new fileSync('db.json'))
 
-const winston = require('winston')
+const express = require('express');
+const app = express();
 
-const _ = require('lodash');
 
 const logger = winston.createLogger({
   level: 'debug',
@@ -18,7 +20,7 @@ const logger = winston.createLogger({
 // Set some defaults (required if your JSON file is empty)
 db.defaults({ forums: [], topics: [] }).write()
 
-const topicCrawler = new Crawler({
+const topicCrawler = new crawler({
   callback: (_error, res, done) => {
     logger.debug('Parsing topic: ' + res.uri);
 
@@ -49,7 +51,7 @@ const topicCrawler = new Crawler({
   }
 });
 
-const forumCrawler = new Crawler({
+const forumCrawler = new crawler({
   callback: (_error, res, done) => {
     logger.debug('Parsing forum page: ' + res.uri);
 
@@ -93,9 +95,6 @@ function queueForum(id) {
   });
 }
 
-const express = require('express');
-const app = express();
-
 app.use(express.static(__dirname));
 
 app.get('/topics', (req, res) => {
@@ -105,7 +104,7 @@ app.get('/topics', (req, res) => {
 const server = app.listen(3000, () => {  
   console.log(server.address().port);
 
-  logger.debug(`Server started on port: ${server.address().port}`);
+  logger.debug('Server started on port: ' + server.address().port);
 
   // todo: open browser
 
