@@ -12,7 +12,9 @@ const db = low(adapter)
 // Set some defaults (required if your JSON file is empty)
 db.defaults({ topics: [] }).write()
 
-function save(topic) {
+function saveTopic(topic) {
+    console.log(topic);
+    return;
     let t = db.get('topics').find({ url: topic.url }).value();
     if (t === undefined) {
        db.get('topics')
@@ -30,33 +32,33 @@ function save(topic) {
    console.log(topic.title);
 }
 
-const crawler = new Crawler({
+const topicCrawler = new Crawler({
   callback: (_error, { $ }, done) => {
     let topic = {
-	url: $("[name=identifier-url]").attr("content"),
+	    url: $("[name=identifier-url]").attr("content"),
     	title: $(".ipsType_pagetitle").text(),
-	author_id: $("[itemprop=creator]").find("[hovercard-ref=member]").attr('hovercard-id'),
-	author_name: $("[itemprop=creator]").find("[itemprop=name]").text(),
-	posts: [],
+      author_id: $("[itemprop=creator]").find("[hovercard-ref=member]").attr('hovercard-id'),
+      author_name: $("[itemprop=creator]").find("[itemprop=name]").text(),
+      posts: [],
     };
 
     $(".post_block").each(function () {
     	let post = $(this);
-	topic.posts.push({
-	    id: post.find("[itemprop=replyToUrl]").attr('data-entry-pid'),
-	    time: post.find("[itemprop=commentTime]").attr('title'),
-	    author_id: post.find("[hovercard-ref=member]").attr('hovercard-id'),
-	    author_name: post.find("[itemprop=commentTime]").attr('title')
-	});
+	    topic.posts.push({
+        id: post.find("[itemprop=replyToUrl]").attr('data-entry-pid'),
+        time: post.find("[itemprop=commentTime]").attr('title'),
+        author_id: post.find("[hovercard-ref=member]").attr('hovercard-id'),
+        author_name: post.find("[hovercard-ref=member]").children("span").html(),
+	    });
     }); 
 
-    save(topic);
+    saveTopic(topic);
 
     done();
   }
 });
 
-crawler.queue([{
-    html: fs.readFileSync('pages/topic.html', 'utf8')
+topicCrawler.queue([{
+  html: fs.readFileSync('pages/topic.html', 'utf8')
 }]);
 
