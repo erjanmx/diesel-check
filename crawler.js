@@ -22,7 +22,7 @@ db.defaults({ forums: [], topics: [] }).write()
 
 const topicCrawler = new crawler({
   callback: (_error, res, done) => {
-    logger.debug('Parsing topic: ' + res.request.uri.href);
+    logger.debug('Parsing topic page: ' + res.request.uri.href);
 
     const $ = res.$;
 
