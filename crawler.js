@@ -6,6 +6,8 @@ const db = lowDb(new FileSync('db.json'))
 
 const winston = require('winston')
 
+const _ = require('lodash');
+
 const logger = winston.createLogger({
   level: 'debug',
   transports: [
@@ -21,7 +23,7 @@ const topicCrawler = new Crawler({
     const $ = res.$;
 
     let topic = {
-      url: $("[name=identifier-url]").attr("content"),
+      id: $('body').find('input[name="t"]').val(),
     	title: $(".ipsType_pagetitle").text(),
       forum_id: res.options.forum_id,
       author_id: $("[itemprop=creator]").find("[hovercard-ref=member]").attr('hovercard-id'),
@@ -60,10 +62,17 @@ const forumCrawler = new Crawler({
   }
 });
 
-function saveTopic(topic) {
-  logger.debug('Saving topic', topic)
+let topicDb = db.get('topics');
 
-  console.log(topic);
+function saveTopic(data) {
+  logger.debug('Saving topic', data)
+  let topic = topicDb.find({ id: data.id });
+
+  if (topic.value()) {
+    topic.assign({ posts: _.unionWith(data.posts, topic.value().posts, _.isEqual) }).write();
+  } else {
+    topicDb.push(data).write();
+  }
 }
 
 function queueForum(id) {
@@ -79,8 +88,6 @@ const express = require('express');
 const app = express();
 
 app.use(express.static(__dirname));
-
-logger.error('hey');
 
 const server = app.listen(3000, () => {  
   console.log(server.address().port);
