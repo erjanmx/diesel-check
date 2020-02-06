@@ -22,7 +22,7 @@ db.defaults({ forums: [], topics: [] }).write()
 
 const topicCrawler = new crawler({
   callback: (_error, res, done) => {
-    logger.debug('Parsing topic: ' + res.uri);
+    logger.debug('Parsing topic: ' + res.request.uri.href);
 
     const $ = res.$;
 
@@ -53,7 +53,7 @@ const topicCrawler = new crawler({
 
 const forumCrawler = new crawler({
   callback: (_error, res, done) => {
-    logger.debug('Parsing forum page: ' + res.uri);
+    logger.debug('Parsing forum page: ' + res.request.uri.href);
 
     const $ = res.$;
 
@@ -108,7 +108,7 @@ const server = app.listen(3000, () => {
 
   // todo: open browser
 
-  // queueForum(227);
+  queueForum(227);
 
   // setInterval(() => {
   //   queueForum(227);
