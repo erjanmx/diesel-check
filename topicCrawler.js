@@ -9,33 +9,28 @@ const FileSync = require('lowdb/adapters/FileSync')
 const adapter = new FileSync('db.json')
 const db = low(adapter)
 
+const _ = require('lodash');
+
 // Set some defaults (required if your JSON file is empty)
 db.defaults({ topics: [] }).write()
 
-function saveTopic(topic) {
-    console.log(topic);
-    return;
-    let t = db.get('topics').find({ url: topic.url }).value();
-    if (t === undefined) {
-       db.get('topics')
-          .push(topic)
-          .write()	
-    } else {
-    
-    }
-    
-/*
-        .assign({ title: 'hi!'})
-  	.write()
-*/
-   
-   console.log(topic.title);
+let topicDb = db.get('topics');
+
+function saveTopic(data) {
+  console.log(data);
+  let topic = topicDb.find({ url: data.url });
+
+  if (topic.value()) {
+    topic.assign({ posts: _.unionWith(data.posts, topic.value().posts, _.isEqual) }).write();
+  } else {
+    topicDb.push(data).write();
+  }
 }
 
 const topicCrawler = new Crawler({
   callback: (_error, { $ }, done) => {
     let topic = {
-	    url: $("[name=identifier-url]").attr("content"),
+      id: $('body').find('input[name="t"]').val(),
     	title: $(".ipsType_pagetitle").text(),
       author_id: $("[itemprop=creator]").find("[hovercard-ref=member]").attr('hovercard-id'),
       author_name: $("[itemprop=creator]").find("[itemprop=name]").text(),

@@ -20,6 +20,8 @@ db.defaults({ forums: [], topics: [] }).write()
 
 const topicCrawler = new Crawler({
   callback: (_error, res, done) => {
+    logger.debug('Parsing topic: ' + res.uri);
+
     const $ = res.$;
 
     let topic = {
@@ -49,9 +51,13 @@ const topicCrawler = new Crawler({
 
 const forumCrawler = new Crawler({
   callback: (_error, res, done) => {
+    logger.debug('Parsing forum page: ' + res.uri);
+
     const $ = res.$;
 
     $('.topic_title').each(function () {
+      logger.debug('Queueing topic: ' + $(this).attr('href'));
+
       topicCrawler.queue({
         uri: $(this).attr('href') + '&view=getlastpost',
         forum_id: res.options.forum_id,
@@ -65,18 +71,21 @@ const forumCrawler = new Crawler({
 let topicDb = db.get('topics');
 
 function saveTopic(data) {
-  logger.debug('Saving topic', data)
   let topic = topicDb.find({ id: data.id });
 
   if (topic.value()) {
+    logger.debug('Updating topic', data);
+
     topic.assign({ posts: _.unionWith(data.posts, topic.value().posts, _.isEqual) }).write();
   } else {
+    logger.debug('Creating topic', data);
+
     topicDb.push(data).write();
   }
 }
 
 function queueForum(id) {
-  logger.debug('Queueing forum', {'id': id})
+  logger.debug('Queueing forum: ' + id);
 
   forumCrawler.queue({
     uri: 'http://diesel.elcat.kg/index.php?showforum=' + id,
@@ -89,6 +98,10 @@ const app = express();
 
 app.use(express.static(__dirname));
 
+app.get('/topics', (req, res) => {
+  return res.json(topicDb.value());
+});
+
 const server = app.listen(3000, () => {  
   console.log(server.address().port);
 
@@ -96,7 +109,7 @@ const server = app.listen(3000, () => {
 
   // todo: open browser
 
-  queueForum(227);
+  // queueForum(227);
 
   // setInterval(() => {
   //   queueForum(227);
