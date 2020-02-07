@@ -108,7 +108,7 @@ app.post('/forum/set', (req, res) => {
   db.set('check_forum_id', parseInt(req.query['id'])).write();
   res.send();
 
-  queueForum();
+  // queueForum();
 });
 
 app.get('/forum/get', (req, res) => {

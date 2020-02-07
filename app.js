@@ -4,25 +4,27 @@ new Vue({
   el: '#app',
   data: {
     topics: [],
-    check_forum_id: 0,
+    check_forum_id: null,
   },
   methods: {
-    loadTopics: function () {
+    loadTopics() {
       axios.get('/topics').then(
         response => this.topics = response.data
-      )
-    },
-    loadForum: function () {
-      axios.get('/forum/get').then(response => this.check_forum_id = response.data);
+      );
     },
     onForumChange(event) {
       axios.post('/forum/set?id=' + event.target.value).then(() => this.loadTopics());
-    }
+    },
+    loadActiveForum() {
+      axios.get('/forum/get').then((response) => {
+        this.check_forum_id = response.data;
+        this.loadTopics();
+      });
+    },
   },
   mounted() {    
-    this.loadForum();
-    this.loadTopics();
-
+    this.loadActiveForum();
+    
     socket.on('topics', () => { this.loadTopics() });
   }
 });
