@@ -11,6 +11,8 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
+const moment = require('moment');
+
 const logger = winston.createLogger({
   level: 'debug',
   transports: [ new winston.transports.Console() ]
@@ -23,6 +25,15 @@ let topicDb = db.get('topics');
 
 function saveTopic(data) {
   let topic = topicDb.find({ id: data.id });
+
+  topic.posts = topic.posts.map((post) => {
+    post.time = moment(post.time).utcOffset(+6);
+    return post;
+  }).filter((post) => {
+    return moment(post.time).isSame(moment(), 'day');
+  });
+
+  console.log(topic);
 
   if (topic.value()) {
     logger.debug('Updating topic', data);

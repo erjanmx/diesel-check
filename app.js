@@ -21,6 +21,15 @@ new Vue({
         this.loadTopics();
       });
     },
+    getTopicHref(topic) {
+      return 'http://diesel.elcat.kg?showtopic=' + topic.id;
+    },
+    getTopicAuthorHref(topic) {
+      return 'http://diesel.elcat.kg?showuser=' + topic.author_id;
+    },
+    getTopicPostsTooltip(topic) {
+      return topic.posts.map((post) => moment(post.time).utcOffset(+6).format("DD-MM-YYYY, HH:mm")).join("\n");
+    },
   },
   mounted() {    
     this.loadActiveForum();
