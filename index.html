@@ -8,8 +8,13 @@
 </head>
   <body>
   <div id="app">
+    <select v-model="check_forum_id" @change="onForumChange">
+      <option value="0">Выберите раздел</option>
+      <option value=376>куплю-продам КОМПЬЮТЕРЫ</option>
+      <option value=192>куплю-продам ТЕЛЕФОНЫ</option>
+    </select>
     <div v-for="topic in topics">
-      {{ topic.id }} - {{ topic.posts.length }}
+      {{ topic.id }} - {{ topic.author_name }} - {{ topic.posts.length }}
     </div>
   </div>
   </body>

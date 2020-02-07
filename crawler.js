@@ -18,7 +18,7 @@ const logger = winston.createLogger({
 });
 
 // Set some defaults (required if your JSON file is empty)
-db.defaults({ forums: [], topics: [] }).write()
+db.defaults({ topics: [], check_forum_id: null }).write()
 
 const topicCrawler = new crawler({
   callback: (_error, res, done) => {
@@ -63,6 +63,7 @@ const forumCrawler = new crawler({
       topicCrawler.queue({
         uri: $(this).attr('href') + '&view=getlastpost',
         forum_id: res.options.forum_id,
+        // rateLimit: 5,
       });
     });
 
@@ -86,19 +87,31 @@ function saveTopic(data) {
   }
 }
 
-function queueForum(id) {
-  logger.debug('Queueing forum: ' + id);
+function queueForum() {
+  let forum_id = db.get('check_forum_id').value();
+
+  logger.debug('Queueing forum: ' + forum_id);
 
   forumCrawler.queue({
-    uri: 'http://diesel.elcat.kg/index.php?showforum=' + id,
-    forum_id: id,
+    uri: 'http://diesel.elcat.kg/index.php?showforum=' + forum_id,
+    forum_id: forum_id,
   });
 }
 
 app.use(express.static(__dirname));
 
 app.get('/topics', (req, res) => {
-  return res.json(topicDb.value());
+  return res.json(topicDb.filter({ forum_id: db.get('check_forum_id').value() }).value());
+});
+
+app.get('/forum/set', (req, res) => {
+  db.set('check_forum_id', parseInt(req.param('id'))).write();
+
+  res.send();
+});
+
+app.get('/forum/get', (req, res) => {
+  return res.json(db.get('check_forum_id').value());
 });
 
 const server = app.listen(3000, () => {  
@@ -108,9 +121,9 @@ const server = app.listen(3000, () => {
 
   // todo: open browser
 
-  queueForum(227);
-
+  // queueForum();
+  
   // setInterval(() => {
-  //   queueForum(227);
+  //   queueForum();
   // }, 60000)
 });
