@@ -5,12 +5,14 @@
   <script src="https://unpkg.com/vue"></script>
   <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
+
   <body>
   <div id="app">
     <select v-model="check_forum_id" @change="onForumChange">
-      <option value="0">Выберите раздел</option>
-      <option value=376>куплю-продам КОМПЬЮТЕРЫ</option>
+      <option value="">Выберите раздел</option>
+      <option value=28>куплю-продам КОМПЬЮТЕРЫ</option>
       <option value=192>куплю-продам ТЕЛЕФОНЫ</option>
     </select>
     <div v-for="topic in topics">

@@ -17,6 +17,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
     "server": "^1.0.22",
+    "socket.io": "^2.3.0",
     "winston": "^3.2.1"
   }
 }

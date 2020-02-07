@@ -1,3 +1,4 @@
+const socket = io();
 
 new Vue({
   el: '#app',
@@ -12,16 +13,16 @@ new Vue({
       )
     },
     loadForum: function () {
-      axios.get('/forum/get').then(
-        response => this.check_forum_id = response.data
-      )
+      axios.get('/forum/get').then(response => this.check_forum_id = response.data);
     },
     onForumChange(event) {
-      axios.get('/forum/set?id=' + event.target.value).then(() => this.loadTopics());
+      axios.post('/forum/set?id=' + event.target.value).then(() => this.loadTopics());
     }
   },
-  mounted() {
+  mounted() {    
     this.loadForum();
     this.loadTopics();
+
+    socket.on('topics', () => { this.loadTopics() });
   }
 });

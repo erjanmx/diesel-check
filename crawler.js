@@ -8,7 +8,8 @@ const db = lowDb(new fileSync('db.json'))
 
 const express = require('express');
 const app = express();
-
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
 const logger = winston.createLogger({
   level: 'debug',
@@ -63,7 +64,6 @@ const forumCrawler = new crawler({
       topicCrawler.queue({
         uri: $(this).attr('href') + '&view=getlastpost',
         forum_id: res.options.forum_id,
-        // rateLimit: 5,
       });
     });
 
@@ -90,6 +90,10 @@ function saveTopic(data) {
 function queueForum() {
   let forum_id = db.get('check_forum_id').value();
 
+  if (!forum_id) {
+    return;
+  }
+
   logger.debug('Queueing forum: ' + forum_id);
 
   forumCrawler.queue({
@@ -104,26 +108,28 @@ app.get('/topics', (req, res) => {
   return res.json(topicDb.filter({ forum_id: db.get('check_forum_id').value() }).value());
 });
 
-app.get('/forum/set', (req, res) => {
-  db.set('check_forum_id', parseInt(req.param('id'))).write();
-
+app.post('/forum/set', (req, res) => {
+  db.set('check_forum_id', parseInt(req.query['id'])).write();
   res.send();
+
+  queueForum();
 });
 
 app.get('/forum/get', (req, res) => {
   return res.json(db.get('check_forum_id').value());
 });
 
-const server = app.listen(3000, () => {  
-  console.log(server.address().port);
+topicCrawler.on('drain', function () {
+  io.emit('topics', 'updated');
+});
 
+const server = app.listen(3000, () => {  
+  io.listen(server);
+
+  console.log(server.address().port);
   logger.debug('Server started on port: ' + server.address().port);
 
-  // todo: open browser
-
-  // queueForum();
-  
-  // setInterval(() => {
-  //   queueForum();
-  // }, 60000)
+  setInterval(() => {
+    queueForum();
+  }, 1000 * 60 * 10); // 10 minutes
 });
