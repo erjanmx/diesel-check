@@ -120,7 +120,7 @@ const server = app.listen(3000, () => {
 
   logger.debug('Server started on port: ' + server.address().port);
 
-  setInterval(() => { queueForum() }, 1000 * 60 * 10); // 10 minutes
+  // setInterval(() => { queueForum() }, 1000 * 60 * 10); // 10 minutes
 
   console.log("Сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
