@@ -13,20 +13,32 @@ const io = require('socket.io')(http);
 
 const logger = winston.createLogger({
   level: 'debug',
-  transports: [
-    new winston.transports.Console(),
-  ]
+  transports: [ new winston.transports.Console() ]
 });
 
-// Set some defaults (required if your JSON file is empty)
+// Database
 db.defaults({ topics: [], check_forum_id: null }).write()
 
+let topicDb = db.get('topics');
+
+function saveTopic(data) {
+  let topic = topicDb.find({ id: data.id });
+
+  if (topic.value()) {
+    logger.debug('Updating topic', data);
+    topic.assign({ posts: _.unionWith(data.posts, topic.value().posts, _.isEqual) }).write();
+  } else {
+    logger.debug('Creating topic', data);
+    topicDb.push(data).write();
+  }
+}
+
+// Crawlers
 const topicCrawler = new crawler({
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
     const $ = res.$;
-
     let topic = {
       id: $('body').find('input[name="t"]').val(),
     	title: $(".ipsType_pagetitle").text(),
@@ -45,9 +57,7 @@ const topicCrawler = new crawler({
         author_name: post.find("[hovercard-ref=member]").children("span").html(),
 	    });
     }); 
-
     saveTopic(topic);
-
     done();
   }
 });
@@ -57,7 +67,6 @@ const forumCrawler = new crawler({
     logger.debug('Parsing forum page: ' + res.request.uri.href);
 
     const $ = res.$;
-
     $('.topic_title').each(function () {
       logger.debug('Queueing topic: ' + $(this).attr('href'));
 
@@ -66,26 +75,13 @@ const forumCrawler = new crawler({
         forum_id: res.options.forum_id,
       });
     });
-
     done();
   }
 });
 
-let topicDb = db.get('topics');
-
-function saveTopic(data) {
-  let topic = topicDb.find({ id: data.id });
-
-  if (topic.value()) {
-    logger.debug('Updating topic', data);
-
-    topic.assign({ posts: _.unionWith(data.posts, topic.value().posts, _.isEqual) }).write();
-  } else {
-    logger.debug('Creating topic', data);
-
-    topicDb.push(data).write();
-  }
-}
+topicCrawler.on('drain', function () {
+  io.emit('topics', 'updated');
+});
 
 function queueForum() {
   let forum_id = db.get('check_forum_id').value();
@@ -93,7 +89,6 @@ function queueForum() {
   if (!forum_id) {
     return;
   }
-
   logger.debug('Queueing forum: ' + forum_id);
 
   forumCrawler.queue({
@@ -102,6 +97,7 @@ function queueForum() {
   });
 }
 
+// Web server
 app.use(express.static(__dirname));
 
 app.get('/topics', (req, res) => {
@@ -119,17 +115,14 @@ app.get('/forum/get', (req, res) => {
   return res.json(db.get('check_forum_id').value());
 });
 
-topicCrawler.on('drain', function () {
-  io.emit('topics', 'updated');
-});
-
 const server = app.listen(3000, () => {  
-  io.listen(server);
-
-  console.log(server.address().port);
   logger.debug('Server started on port: ' + server.address().port);
+
+  io.listen(server);
 
   setInterval(() => {
     queueForum();
   }, 1000 * 60 * 10); // 10 minutes
+
+  console.log("Сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
