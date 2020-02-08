@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 const winston = require('winston')
 const crawler = require("crawler")
 
@@ -11,31 +12,32 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-const moment = require('moment');
 
 const logger = winston.createLogger({
   level: 'debug',
   transports: [ new winston.transports.Console() ]
 });
 
-// Database
-db.defaults({ topics: [], check_forum_id: null }).write()
-
-let topicDb = db.get('topics');
-
 function isToday(time) {
   return moment(time).isSame(moment().utcOffset(+6), 'day');
 }
 
+// Database
+db.defaults({ topics: [], forums: [] }).write()
+
+let topicDb = db.get('topics');
+
 function saveTopic(data) {
-  data.posts = data.posts.map(post => {
+  data.author_posts = data.author_posts.map(post => {
     post.time = moment(post.time).utcOffset(+6).format();
     return post;
   }).filter(post => isToday(post.time));
   
-  if (data.posts.length === 0) {
+  if (data.author_posts.length === 0) {
     return;
   }
+
+  data.last_post_time = _.last(data.author_posts).time;
 
   let topic = topicDb.find({ id: data.id });
 
@@ -43,7 +45,8 @@ function saveTopic(data) {
     logger.debug('Updating topic', data);
     
     topic.assign({ 
-      posts: _.unionWith(data.posts, topic.value().posts.filter(post => isToday(post.time)), _.isEqual) 
+      posts: _.unionWith(data.author_posts, topic.value().author_posts.filter(post => isToday(post.time)), _.isEqual),
+      last_post_time: data.last_post_time,
     }).write();
   } else {
     logger.debug('Creating topic', data);
@@ -51,8 +54,13 @@ function saveTopic(data) {
   }
 }
 
+function removePastTopics() {
+  topicDb.remove(topic => !isToday(topic.last_post_time)).write();
+}
+
 // Crawlers
 const topicCrawler = new crawler({
+  rateLimit: 100,
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
@@ -63,17 +71,18 @@ const topicCrawler = new crawler({
       forum_id: res.options.forum_id,
       author_id: $("[itemprop=creator]").find("[hovercard-ref=member]").attr('hovercard-id'),
       author_name: $("[itemprop=creator]").find("[itemprop=name]").text(),
-      posts: [],
+      author_posts: [],
     };
 
     $(".post_block").each(function () {
-    	let post = $(this);
-	    topic.posts.push({
-        id: post.find("[itemprop=replyToUrl]").attr('data-entry-pid'),
-        time: post.find("[itemprop=commentTime]").attr('title'),
-        author_id: post.find("[hovercard-ref=member]").attr('hovercard-id'),
-        author_name: post.find("[hovercard-ref=member]").children("span").html(),
-	    });
+      let post = $(this);
+      
+      if (topic.author_id == post.find("[hovercard-ref=member]").attr('hovercard-id')) {
+        topic.author_posts.push({
+          id: post.find("[itemprop=replyToUrl]").attr('data-entry-pid'),
+          time: post.find("[itemprop=commentTime]").attr('title'),
+        });
+      }
     }); 
     saveTopic(topic);
     done();
@@ -102,6 +111,8 @@ topicCrawler.on('drain', function () {
 });
 
 function queueForums() {
+  removePastTopics();
+
   let forums = db.get('forums').value();
   
   for (forum of forums) {
@@ -122,8 +133,7 @@ const server = app.listen(3000, () => {
 
   logger.debug('Server started on port: ' + server.address().port);
 
-  // queueForums();
-  // setInterval(() => { queueForums() }, 1000 * 60 * 10); // 10 minutes
+  setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
 
   console.log("Сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });

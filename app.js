@@ -17,7 +17,7 @@ new Vue({
   },
   computed: {
     filteredTopics() {
-      return this.topics.filter(topic => topic.forum_id === this.forum_id);
+      return this.topics.filter(topic => (topic.forum_id === this.forum_id) && (topic.author_posts.length > 1) && (this.isToday(topic.last_post_time)));
     }
   },
   watch: {
@@ -31,8 +31,8 @@ new Vue({
   methods: {
     loadDb() {
       axios.get('/db.json').then((response) => {
-        this.topics = response.data.topics;
-        this.forums = response.data.forums;
+        this.topics = response.data.topics || [];
+        this.forums = response.data.forums || [];
       }).then(() => {
         if (this.forum_id) { this.forum_id = parseInt(this.forum_id)}
       });
@@ -44,7 +44,10 @@ new Vue({
       return 'http://diesel.elcat.kg?showuser=' + topic.author_id;
     },
     getTopicPosts(topic) {
-      return topic.posts.map((post) => moment(post.time).format("DD-MM-YYYY, HH:mm")).join("\n");
+      return "Время\n\n" + topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).join("\n");
+    },
+    isToday(time) {
+      return moment(time).isSame(moment().utcOffset(+6), 'day');
     },
   },
   mounted() {

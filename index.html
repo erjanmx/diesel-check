@@ -47,7 +47,7 @@
               <a target="_blank" :href="getTopicAuthorHref(topic)">{{ topic.author_name }}</a>
             </td>
             <td>
-              <span :aria-label="getTopicPosts(topic)" data-balloon-break data-balloon-pos="left">{{ topic.posts.length }}</span>
+              <span :aria-label="getTopicPosts(topic)" data-balloon-break data-balloon-pos="left">{{ topic.author_posts.length }}</span>
             </td>
           </tr>
         </tbody>
