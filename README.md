@@ -23,6 +23,7 @@
 
 - Для парсинга форума используется [crawler](https://github.com/bda-research/node-crawler) и [cheerio](https://github.com/cheeriojs/cheerio)
 - Хранение данных [lowdb](https://github.com/typicode/lowdb)
-- Web - [express](https://github.com/expressjs/express)
+- Web - [express](https://github.com/expressjs/express) + [vue](https://github.com/vuejs/vue)
 - Логирование [winston](https://github.com/winstonjs/winston)
-- [socket.io](https://github.com/socketio/socket.io), [moment](https://github.com/moment/moment), [lodash](https://github.com/lodash/lodash)
+- [socket.io](https://github.com/socketio/socket.io), [moment](https://github.com/moment/moment), [lodash](https://github.com/lodash/lodash), [axios](https://github.com/axios/axios)
+- Стили [bulma](https://github.com/jgthms/bulma), [baloon](https://github.com/kazzkiq/balloon.css)
