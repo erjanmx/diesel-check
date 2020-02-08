@@ -23,21 +23,28 @@ db.defaults({ topics: [], check_forum_id: null }).write()
 
 let topicDb = db.get('topics');
 
+function isToday(time) {
+  return moment(time).isSame(moment().utcOffset(+6), 'day');
+}
+
 function saveTopic(data) {
-  let topic = topicDb.find({ id: data.id });
-
-  topic.posts = topic.posts.map((post) => {
-    post.time = moment(post.time).utcOffset(+6);
+  data.posts = data.posts.map(post => {
+    post.time = moment(post.time).utcOffset(+6).format();
     return post;
-  }).filter((post) => {
-    return moment(post.time).isSame(moment(), 'day');
-  });
+  }).filter(post => isToday(post.time));
+  
+  if (data.posts.length === 0) {
+    return;
+  }
 
-  console.log(topic);
+  let topic = topicDb.find({ id: data.id });
 
   if (topic.value()) {
     logger.debug('Updating topic', data);
-    topic.assign({ posts: _.unionWith(data.posts, topic.value().posts, _.isEqual) }).write();
+    
+    topic.assign({ 
+      posts: _.unionWith(data.posts, topic.value().posts.filter(post => isToday(post.time)), _.isEqual) 
+    }).write();
   } else {
     logger.debug('Creating topic', data);
     topicDb.push(data).write();
@@ -94,44 +101,29 @@ topicCrawler.on('drain', function () {
   io.emit('topics', 'updated');
 });
 
-function queueForum() {
-  let forum_id = db.get('check_forum_id').value();
+function queueForums() {
+  let forums = db.get('forums').value();
+  
+  for (forum of forums) {
+    logger.debug('Queueing forum: ' + forum.id);
 
-  if (!forum_id) {
-    return;
+    forumCrawler.queue({
+      uri: 'http://diesel.elcat.kg/index.php?showforum=' + forum.id,
+      forum_id: forum.id,
+    });
   }
-  logger.debug('Queueing forum: ' + forum_id);
-
-  forumCrawler.queue({
-    uri: 'http://diesel.elcat.kg/index.php?showforum=' + forum_id,
-    forum_id: forum_id,
-  });
 }
 
 // Web server
 app.use(express.static(__dirname));
-
-app.get('/topics', (req, res) => {
-  return res.json(topicDb.filter({ forum_id: db.get('check_forum_id').value() }).value());
-});
-
-app.post('/forum/set', (req, res) => {
-  db.set('check_forum_id', parseInt(req.query['id'])).write();
-  res.send();
-
-  // queueForum();
-});
-
-app.get('/forum/get', (req, res) => {
-  return res.json(db.get('check_forum_id').value());
-});
 
 const server = app.listen(3000, () => {  
   io.listen(server);
 
   logger.debug('Server started on port: ' + server.address().port);
 
-  // setInterval(() => { queueForum() }, 1000 * 60 * 10); // 10 minutes
+  // queueForums();
+  // setInterval(() => { queueForums() }, 1000 * 60 * 10); // 10 minutes
 
   console.log("Сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
