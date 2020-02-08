@@ -67,7 +67,7 @@ const topicCrawler = new crawler({
     const $ = res.$;
     let topic = {
       id: $('body').find('input[name="t"]').val(),
-    	title: $(".ipsType_pagetitle").text(),
+      title: $(".ipsType_pagetitle").text(),
       forum_id: res.options.forum_id,
       author_id: $("[itemprop=creator]").find("[hovercard-ref=member]").attr('hovercard-id'),
       author_name: $("[itemprop=creator]").find("[itemprop=name]").text(),
