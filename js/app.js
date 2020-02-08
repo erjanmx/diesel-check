@@ -31,18 +31,18 @@ new Vue({
     },
   },
   methods: {
-    loadDb() {
+    loadTopics() {
       this.loading = true;
-
-      axios.get('/db.json').then((response) => {
+      axios.get('/db/topics.json').then((response) => {
         this.topics = response.data.topics || [];
-        this.forums = response.data.forums || [];
-
         this.loading = false;
+      });
+    },
+    loadForums() {
+      axios.get('/db/forums.json').then((response) => {
+        this.forums = response.data.forums || [];
       }).then(() => {
         if (this.forum_id) { this.forum_id = parseInt(this.forum_id)}
-      }).finally(() => {
-        this.loading = false;
       });
     },
     getTopicHref(topic) {
@@ -63,7 +63,9 @@ new Vue({
       this.forum_id = this.$route.query.f;
     }
 
-    socket.on('topics', () => { this.loadDb() });
-    socket.on('connect', () => { this.loadDb() });
+    this.loadForums();
+
+    socket.on('topics', () => { this.loadTopics() });
+    socket.on('connect', () => { this.loadTopics() });
   }
 });

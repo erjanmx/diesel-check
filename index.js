@@ -1,11 +1,12 @@
 const _ = require('lodash');
 const moment = require('moment');
-const winston = require('winston')
-const crawler = require("crawler")
+const winston = require('winston');
+const crawler = require("crawler");
 
-const lowDb = require('lowdb')
-const fileSync = require('lowdb/adapters/FileSync')
-const db = lowDb(new fileSync('db.json'))
+const lowDb = require('lowdb');
+const fileSync = require('lowdb/adapters/FileSync');
+const dbTopics = lowDb(new fileSync('./db/topics.json'));
+const dbForums = lowDb(new fileSync('./db/forums.json'));
 
 const express = require('express');
 const app = express();
@@ -22,9 +23,9 @@ function isToday(time) {
 }
 
 // Database
-db.defaults({ topics: [], forums: [] }).write()
+dbTopics.defaults({ topics: [] }).write()
 
-let topicDb = db.get('topics');
+let topicDb = dbTopics.get('topics');
 
 function saveTopic(data) {
   data.author_posts = data.author_posts.map(post => {
@@ -59,7 +60,7 @@ function removePastTopics() {
 
 // Crawlers
 const topicCrawler = new crawler({
-  rateLimit: 100,
+  // rateLimit: 100,
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
@@ -112,7 +113,7 @@ topicCrawler.on('drain', function () {
 function queueForums() {
   removePastTopics();
 
-  let forums = db.get('forums').value();
+  let forums = dbForums.get('forums').value();
   
   for (forum of forums) {
     logger.debug('Queueing forum: ' + forum.id);
