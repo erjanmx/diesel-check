@@ -25,8 +25,6 @@ function isToday(time) {
 // Database
 dbTopics.defaults({ topics: [] }).write()
 
-let topicDb = dbTopics.get('topics');
-
 function saveTopic(data) {
   data.author_posts = data.author_posts.map(post => {
     post.time = moment(post.time).utcOffset(+6).format();
@@ -39,7 +37,7 @@ function saveTopic(data) {
 
   data.last_post_time = _.last(data.author_posts).time;
 
-  let topic = topicDb.find({ id: data.id });
+  let topic = dbTopics.get('topics').find({ id: data.id });
 
   if (topic.value()) {
     logger.debug('Updating topic', data);
@@ -50,17 +48,17 @@ function saveTopic(data) {
     }).write();
   } else {
     logger.debug('Creating topic', data);
-    topicDb.push(data).write();
+    dbTopics.get('topics').push(data).write();
   }
 }
 
 function removePastTopics() {
-  topicDb.remove(topic => !isToday(topic.last_post_time)).write();
+  dbTopics.get('topics').remove(topic => !isToday(topic.last_post_time)).write();
 }
 
 // Crawlers
 const topicCrawler = new crawler({
-  // rateLimit: 100,
+  rateLimit: 100,
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
