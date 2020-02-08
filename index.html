@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IC</title>
+  <title>IP_Checker - проверка соблюдения правил в коммерческих раздела форума Дизель</title>
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
   <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
   <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
@@ -28,7 +28,8 @@
         </div>
       </div>
       
-      <table class="table">
+      <p v-show="loading">Загрузка тем...</p>
+      <table v-show="!loading" class="table">
         <thead>
           <tr>
             <th>#</th>
@@ -37,8 +38,10 @@
             <th>Ответов автора за сегодня</th>
           </tr>
         </thead>
-        <tbody name="topics" is="transition-group">
-          <tr v-for="(topic, i) in filteredTopics" v-bind:key="topic.id">
+        <tbody>
+          <tr v-show="!loading && !filteredTopics.length"><td>Нет тем для отображения</td></tr>
+          
+          <tr v-show="filteredTopics.length" v-for="(topic, i) in filteredTopics" v-bind:key="topic.id">
             <td>{{ i + 1}}</td>
             <td>
               <a target="_blank" :href="getTopicHref(topic)">{{ topic.title }}</a>

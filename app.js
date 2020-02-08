@@ -14,6 +14,8 @@ new Vue({
     topics: [],
     forums: [],
     forum_id: null,
+
+    loading: false,
   },
   computed: {
     filteredTopics() {
@@ -30,11 +32,17 @@ new Vue({
   },
   methods: {
     loadDb() {
+      this.loading = true;
+
       axios.get('/db.json').then((response) => {
         this.topics = response.data.topics || [];
         this.forums = response.data.forums || [];
+
+        this.loading = false;
       }).then(() => {
         if (this.forum_id) { this.forum_id = parseInt(this.forum_id)}
+      }).finally(() => {
+        this.loading = false;
       });
     },
     getTopicHref(topic) {
@@ -55,8 +63,7 @@ new Vue({
       this.forum_id = this.$route.query.f;
     }
 
-    this.loadDb();
-    
     socket.on('topics', () => { this.loadDb() });
+    socket.on('connect', () => { this.loadDb() });
   }
 });
