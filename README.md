@@ -14,10 +14,15 @@
 
 ```bash
  git clone git@github.com:erjanmx/diesel-check.git
- 
- cd diesel-check
- 
+ cd diesel-check 
  npm install
- 
  npm start
 ```
+
+## Технические детали
+
+- Для парсинга форума используется [crawler](https://github.com/bda-research/node-crawler) и [cheerio](https://github.com/cheeriojs/cheerio)
+- Хранение данных [lowdb](https://github.com/typicode/lowdb)
+- Web - [express](https://github.com/expressjs/express)
+- Логирование [winston](https://github.com/winstonjs/winston)
+- [socket.io](https://github.com/socketio/socket.io), [moment](https://github.com/moment/moment), [lodash](https://github.com/lodash/lodash)
