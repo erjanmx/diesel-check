@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 const winston = require('winston')
 const crawler = require("crawler")
 
@@ -11,62 +12,77 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
-const moment = require('moment');
 
 const logger = winston.createLogger({
   level: 'debug',
   transports: [ new winston.transports.Console() ]
 });
 
+function isToday(time) {
+  return moment(time).isSame(moment().utcOffset(+6), 'day');
+}
+
 // Database
-db.defaults({ topics: [], check_forum_id: null }).write()
+db.defaults({ topics: [], forums: [] }).write()
 
 let topicDb = db.get('topics');
 
 function saveTopic(data) {
-  let topic = topicDb.find({ id: data.id });
-
-  topic.posts = topic.posts.map((post) => {
-    post.time = moment(post.time).utcOffset(+6);
+  data.author_posts = data.author_posts.map(post => {
+    post.time = moment(post.time).utcOffset(+6).format();
     return post;
-  }).filter((post) => {
-    return moment(post.time).isSame(moment(), 'day');
-  });
+  }).filter(post => isToday(post.time));
+  
+  if (data.author_posts.length === 0) {
+    return;
+  }
 
-  console.log(topic);
+  data.last_post_time = _.last(data.author_posts).time;
+
+  let topic = topicDb.find({ id: data.id });
 
   if (topic.value()) {
     logger.debug('Updating topic', data);
-    topic.assign({ posts: _.unionWith(data.posts, topic.value().posts, _.isEqual) }).write();
+    
+    topic.assign({ 
+      posts: _.unionWith(data.author_posts, topic.value().author_posts.filter(post => isToday(post.time)), _.isEqual),
+      last_post_time: data.last_post_time,
+    }).write();
   } else {
     logger.debug('Creating topic', data);
     topicDb.push(data).write();
   }
 }
 
+function removePastTopics() {
+  topicDb.remove(topic => !isToday(topic.last_post_time)).write();
+}
+
 // Crawlers
 const topicCrawler = new crawler({
+  rateLimit: 100,
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
     const $ = res.$;
     let topic = {
       id: $('body').find('input[name="t"]').val(),
-    	title: $(".ipsType_pagetitle").text(),
+      title: $(".ipsType_pagetitle").text(),
       forum_id: res.options.forum_id,
       author_id: $("[itemprop=creator]").find("[hovercard-ref=member]").attr('hovercard-id'),
       author_name: $("[itemprop=creator]").find("[itemprop=name]").text(),
-      posts: [],
+      author_posts: [],
     };
 
     $(".post_block").each(function () {
-    	let post = $(this);
-	    topic.posts.push({
-        id: post.find("[itemprop=replyToUrl]").attr('data-entry-pid'),
-        time: post.find("[itemprop=commentTime]").attr('title'),
-        author_id: post.find("[hovercard-ref=member]").attr('hovercard-id'),
-        author_name: post.find("[hovercard-ref=member]").children("span").html(),
-	    });
+      let post = $(this);
+      
+      if (topic.author_id == post.find("[hovercard-ref=member]").attr('hovercard-id')) {
+        topic.author_posts.push({
+          id: post.find("[itemprop=replyToUrl]").attr('data-entry-pid'),
+          time: post.find("[itemprop=commentTime]").attr('title'),
+        });
+      }
     }); 
     saveTopic(topic);
     done();
@@ -94,44 +110,30 @@ topicCrawler.on('drain', function () {
   io.emit('topics', 'updated');
 });
 
-function queueForum() {
-  let forum_id = db.get('check_forum_id').value();
+function queueForums() {
+  removePastTopics();
 
-  if (!forum_id) {
-    return;
+  let forums = db.get('forums').value();
+  
+  for (forum of forums) {
+    logger.debug('Queueing forum: ' + forum.id);
+
+    forumCrawler.queue({
+      uri: 'http://diesel.elcat.kg/index.php?showforum=' + forum.id,
+      forum_id: forum.id,
+    });
   }
-  logger.debug('Queueing forum: ' + forum_id);
-
-  forumCrawler.queue({
-    uri: 'http://diesel.elcat.kg/index.php?showforum=' + forum_id,
-    forum_id: forum_id,
-  });
 }
 
 // Web server
 app.use(express.static(__dirname));
-
-app.get('/topics', (req, res) => {
-  return res.json(topicDb.filter({ forum_id: db.get('check_forum_id').value() }).value());
-});
-
-app.post('/forum/set', (req, res) => {
-  db.set('check_forum_id', parseInt(req.query['id'])).write();
-  res.send();
-
-  // queueForum();
-});
-
-app.get('/forum/get', (req, res) => {
-  return res.json(db.get('check_forum_id').value());
-});
 
 const server = app.listen(3000, () => {  
   io.listen(server);
 
   logger.debug('Server started on port: ' + server.address().port);
 
-  // setInterval(() => { queueForum() }, 1000 * 60 * 10); // 10 minutes
+  setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
 
   console.log("Сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });

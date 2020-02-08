@@ -1,24 +1,48 @@
 const socket = io();
 
+const router = new VueRouter({
+  mode: 'history',
+  routes: []
+});
+
+Vue.use(VueRouter);
+
 new Vue({
+  router,
   el: '#app',
   data: {
     topics: [],
-    check_forum_id: null,
+    forums: [],
+    forum_id: null,
+
+    loading: false,
+  },
+  computed: {
+    filteredTopics() {
+      return this.topics.filter(topic => (topic.forum_id === this.forum_id) && (topic.author_posts.length > 1) && (this.isToday(topic.last_post_time)));
+    }
+  },
+  watch: {
+    forum_id: function (val) {
+      if (this.forums.length) {
+        let p = (val !== 'null') ? `?f=${val}` : '';
+        this.$router.replace(p);
+      }
+    },
   },
   methods: {
-    loadTopics() {
-      axios.get('/topics').then(
-        response => this.topics = response.data
-      );
-    },
-    onForumChange(event) {
-      axios.post('/forum/set?id=' + event.target.value).then(() => this.loadTopics());
-    },
-    loadActiveForum() {
-      axios.get('/forum/get').then((response) => {
-        this.check_forum_id = response.data;
-        this.loadTopics();
+    loadDb() {
+      this.loading = true;
+
+      axios.get('/db.json').then((response) => {
+        this.topics = response.data.topics || [];
+        this.forums = response.data.forums || [];
+
+        this.loading = false;
+      }).then(() => {
+        if (this.forum_id) { this.forum_id = parseInt(this.forum_id)}
+      }).finally(() => {
+        this.loading = false;
       });
     },
     getTopicHref(topic) {
@@ -27,13 +51,19 @@ new Vue({
     getTopicAuthorHref(topic) {
       return 'http://diesel.elcat.kg?showuser=' + topic.author_id;
     },
-    getTopicPostsTooltip(topic) {
-      return topic.posts.map((post) => moment(post.time).utcOffset(+6).format("DD-MM-YYYY, HH:mm")).join("\n");
+    getTopicPosts(topic) {
+      return "Время\n\n" + topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).join("\n");
+    },
+    isToday(time) {
+      return moment(time).isSame(moment().utcOffset(+6), 'day');
     },
   },
-  mounted() {    
-    this.loadActiveForum();
-    
-    socket.on('topics', () => { this.loadTopics() });
+  mounted() {
+    if (this.$route && this.$route.query.f) {
+      this.forum_id = this.$route.query.f;
+    }
+
+    socket.on('topics', () => { this.loadDb() });
+    socket.on('connect', () => { this.loadDb() });
   }
 });
