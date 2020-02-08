@@ -14,7 +14,7 @@ const io = require('socket.io')(http);
 
 
 const logger = winston.createLogger({
-  level: 'debug',
+  level: process.env.LOG_LEVEL || 'debug',
   transports: [ new winston.transports.Console() ]
 });
 
@@ -133,7 +133,9 @@ const server = app.listen(process.env.PORT || 3000, () => {
 
   logger.debug('Server started on port: ' + server.address().port);
 
-  setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
+  if (!process.env.CLOUD) {
+    setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
 
-  console.log("Сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
+    console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
+  }
 });
