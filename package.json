@@ -1,7 +1,7 @@
 {
-  "name": "ipc",
+  "name": "diesel-checker",
   "version": "0.0.1",
-  "description": "IP_Checker",
+  "description": "Check diesel.elcat.kg forum for bad user behaviour",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -16,9 +16,6 @@
     "lodash": "^4.17.15",
     "lowdb": "^1.0.0",
     "moment": "^2.24.0",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.5",
-    "server": "^1.0.22",
     "socket.io": "^2.3.0",
     "winston": "^3.2.1"
   }
