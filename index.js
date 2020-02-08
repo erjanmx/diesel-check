@@ -9,8 +9,7 @@ const db = lowDb(new fileSync('db.json'))
 
 const express = require('express');
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const socketIO = require('socket.io');
 
 
 const logger = winston.createLogger({
@@ -142,4 +141,4 @@ const server = app.listen(process.env.PORT || 3000, () => {
   console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
 
-io.listen(server);
+const io = socketIO(server);
