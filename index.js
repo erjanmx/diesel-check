@@ -18,7 +18,7 @@ const logger = winston.createLogger({
 });
 
 function isToday(time) {
-  return moment(time).isSame(moment().utcOffset(+6), 'day');
+  return moment.parseZone(time).isSame(moment().utcOffset(+6), 'day');
 }
 
 // Database
@@ -44,7 +44,7 @@ function saveTopic(data) {
     logger.debug('Updating topic', data);
     
     topic.assign({ 
-      posts: _.unionWith(data.author_posts, topic.value().author_posts.filter(post => isToday(post.time)), _.isEqual),
+      author_posts: _.unionWith(data.author_posts, topic.value().author_posts.filter(post => isToday(post.time)), _.isEqual),
       last_post_time: data.last_post_time,
     }).write();
   } else {
