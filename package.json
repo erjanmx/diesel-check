@@ -7,7 +7,7 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "erjanmx@gmail.com",
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
