@@ -130,7 +130,7 @@ app.use(express.static(__dirname));
 const server = app.listen(process.env.PORT || 3000, () => {  
   logger.debug('Server started on port: ' + server.address().port);
 
-  const queueingEnabled = process.env.QUEING_ENABLED || 'TRUE';
+  const queueingEnabled = process.env.QUEUEING_ENABLED || 'TRUE';
 
   if (queueingEnabled == 'TRUE') {
     setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
