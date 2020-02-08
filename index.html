@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-show="!loading && !filteredTopics.length"><td>Нет тем для отображения</td></tr>
+          <tr v-show="!loading && !filteredTopics.length"><td colspan="4">Нет тем для отображения</td></tr>
           
           <tr v-show="filteredTopics.length" v-for="(topic, i) in filteredTopics" v-bind:key="topic.id">
             <td>{{ i + 1}}</td>
