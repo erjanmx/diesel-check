@@ -129,8 +129,6 @@ function queueForums() {
 app.use(express.static(__dirname));
 
 const server = app.listen(process.env.PORT || 3000, () => {  
-  io.listen(server);
-
   logger.debug('Server started on port: ' + server.address().port);
 
   const queueingEnabled = process.env.QUEING_ENABLED || 'TRUE';
@@ -143,3 +141,5 @@ const server = app.listen(process.env.PORT || 3000, () => {
 
   console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
+
+io.listen(server);
