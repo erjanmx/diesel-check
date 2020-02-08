@@ -133,9 +133,13 @@ const server = app.listen(process.env.PORT || 3000, () => {
 
   logger.debug('Server started on port: ' + server.address().port);
 
-  if (!process.env.CLOUD) {
+  const queueingEnabled = process.env.QUEING_ENABLED || 'TRUE';
+
+  if (queueingEnabled == 'TRUE') {
     setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
 
-    console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
+    logger.info('Queueing enabled');
   }
+
+  console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
