@@ -6,7 +6,6 @@ const crawler = require("crawler");
 const lowDb = require('lowdb');
 const fileSync = require('lowdb/adapters/FileSync');
 const dbTopics = lowDb(new fileSync('./db/topics.json'));
-const dbForums = lowDb(new fileSync('./db/forums.json'));
 
 const express = require('express');
 const app = express();
@@ -113,7 +112,7 @@ topicCrawler.on('drain', function () {
 function queueForums() {
   removePastTopics();
 
-  let forums = dbForums.get('forums').value();
+  let forums = lowDb(new fileSync('./db/forums.json')).get('forums').value();
   
   for (forum of forums) {
     logger.debug('Queueing forum: ' + forum.id);
