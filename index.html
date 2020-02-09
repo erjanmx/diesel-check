@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DieselChecker - проверка соблюдения правил в коммерческих разделах форума Дизель</title>
+  <title>Diesel Checker - проверка соблюдения правил в коммерческих разделах форума Дизель</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
   <script src="https://unpkg.com/vue-router@3.1.5/dist/vue-router.min.js"></script>
   <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
@@ -52,7 +52,9 @@
               <a target="_blank" :href="getTopicAuthorHref(topic)">{{ topic.author_name }}</a>
             </td>
             <td>
-              <span :aria-label="getTopicPosts(topic)" data-balloon-break data-balloon-pos="right">{{ topic.author_posts.length }}</span>
+              <span v-if="i === 0" :aria-label="getTopicPosts(topic)" :data-balloon-visible="firstRowBalloonVisible" data-balloon-break data-balloon-pos="right">{{ topic.author_posts.length }}</span>
+              
+              <span v-else :aria-label="getTopicPosts(topic)" data-balloon-break data-balloon-pos="right">{{ topic.author_posts.length }}</span>
             </td>
           </tr>
         </tbody>

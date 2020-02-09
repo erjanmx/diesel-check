@@ -17,6 +17,7 @@ new Vue({
 
     loading: false,
     last_update: null,
+    firstRowBalloonVisible: false,
   },
   computed: {
     filteredTopics() {
@@ -30,6 +31,9 @@ new Vue({
       if (this.forums.length) {
         let p = (val !== 'null') ? `?f=${val}` : '';
         this.$router.replace(p);
+
+        setTimeout(() => this.firstRowBalloonVisible = true, 500);
+        setTimeout(() => this.firstRowBalloonVisible = false, 3000);
       }
     },
   },
