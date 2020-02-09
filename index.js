@@ -128,6 +128,7 @@ function queueForums() {
 
 const queueOnStart = process.env.QUEUE_ON_START || 'FALSE'; 
 const queueingEnabled = process.env.QUEUEING_ENABLED || 'TRUE';  
+const queueingInterval = process.env.QUEUEING_INTERVAL_IN_MINUTES || 240;  
 
 // Web server
 app.use(express.static(__dirname));
@@ -139,9 +140,9 @@ const server = app.listen(process.env.PORT || 3000, () => {
     queueForums();
   }    
   if (queueingEnabled == 'TRUE') {
-    setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
+    setInterval(() => { queueForums() }, 1000 * 60 * queueingInterval);
 
-    logger.info('Queueing enabled');
+    logger.info(`Queueing enabled with ${queueingInterval} minutes interval`);
   }
   console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
