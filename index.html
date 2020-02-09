@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IP_Checker - проверка соблюдения правил в коммерческих раздела форума Дизель</title>
+  <title>DieselChecker - проверка соблюдения правил в коммерческих разделах форума Дизель</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
   <script src="https://unpkg.com/vue-router@3.1.5/dist/vue-router.min.js"></script>
   <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-show="!loading && !filteredTopics.length"><td>Нет тем для отображения</td></tr>
+          <tr v-show="!loading && !filteredTopics.length"><td colspan="4">Нет тем для отображения</td></tr>
           
           <tr v-show="filteredTopics.length" v-for="(topic, i) in filteredTopics" v-bind:key="topic.id">
             <td>{{ i + 1}}</td>
