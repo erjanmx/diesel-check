@@ -59,7 +59,7 @@ new Vue({
       return "Время\n\n" + topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).sort().join("\n");
     },
     isToday(time) {
-      return moment(time).isSame(moment().utcOffset(+6), 'day');
+      return moment.parseZone(time).isSame(moment().utcOffset(+6), 'day');
     },
   },
   mounted() {
