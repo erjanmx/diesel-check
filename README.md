@@ -15,6 +15,7 @@
 ```bash
  git clone git@github.com:erjanmx/diesel-check.git
  cd diesel-check 
+ cp .env.example .env
  npm install
  npm start
 ```
@@ -25,5 +26,5 @@
 - Хранение данных [lowdb](https://github.com/typicode/lowdb)
 - Web - [express](https://github.com/expressjs/express) + [vue](https://github.com/vuejs/vue)
 - Логирование [winston](https://github.com/winstonjs/winston)
-- [socket.io](https://github.com/socketio/socket.io), [moment](https://github.com/moment/moment), [lodash](https://github.com/lodash/lodash), [axios](https://github.com/axios/axios)
+- [socket.io](https://github.com/socketio/socket.io), [moment](https://github.com/moment/moment), [lodash](https://github.com/lodash/lodash), [axios](https://github.com/axios/axios), [dotenv](https://github.com/motdotla/dotenv)
 - Стили [bulma](https://github.com/jgthms/bulma), [baloon](https://github.com/kazzkiq/balloon.css)

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const _ = require('lodash');
 const moment = require('moment');
 const winston = require('winston');
@@ -59,7 +61,7 @@ function removePastTopics() {
 
 // Crawlers
 const topicCrawler = new crawler({
-  rateLimit: 100,
+  rateLimit: process.env.CRAWLER_RATE_LIMIT || 100,
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
@@ -124,20 +126,23 @@ function queueForums() {
   }
 }
 
+const queueOnStart = process.env.QUEUE_ON_START || 'FALSE'; 
+const queueingEnabled = process.env.QUEUEING_ENABLED || 'TRUE';  
+
 // Web server
 app.use(express.static(__dirname));
 
 const server = app.listen(process.env.PORT || 3000, () => {  
   logger.debug('Server started on port: ' + server.address().port);
 
-  const queueingEnabled = process.env.QUEUEING_ENABLED || 'TRUE';
-
+  if (queueOnStart == 'TRUE') {
+    queueForums();
+  }    
   if (queueingEnabled == 'TRUE') {
     setInterval(() => { queueForums() }, 1000 * 60 * 60 * 4); // Every 4 hours
 
     logger.info('Queueing enabled');
   }
-
   console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
 
