@@ -18,6 +18,8 @@
 <body>
   <section class="section">
     <div id="app" class="container">
+      <p class="is-size-7" v-if="last_update">Последнее обновление: {{ last_update.format("DD.MM.YYYY HH:mm") }}</p>
+      
       <div class="control">
         <div class="select">
           <select v-model="forum_id">
@@ -28,7 +30,6 @@
           </select>
         </div>
       </div>
-      
       <p v-show="loading">Загрузка тем...</p>
       <table v-show="!loading" class="table">
         <thead>

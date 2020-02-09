@@ -50,6 +50,8 @@ function saveTopic(data) {
     logger.debug('Creating topic', data);
     dbTopics.get('topics').push(data).write();
   }
+
+  dbTopics.set('updated_at', moment().utcOffset(+6).format()).write();
 }
 
 function removePastTopics() {

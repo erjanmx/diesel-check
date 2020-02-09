@@ -16,6 +16,7 @@ new Vue({
     forum_id: null,
 
     loading: false,
+    last_update: null,
   },
   computed: {
     filteredTopics() {
@@ -37,6 +38,7 @@ new Vue({
       this.loading = true;
       axios.get('/db/topics.json').then((response) => {
         this.topics = response.data.topics || [];
+        this.last_update = moment.parseZone(response.data.updated_at);
         this.loading = false;
       });
     },
