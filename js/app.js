@@ -19,7 +19,9 @@ new Vue({
   },
   computed: {
     filteredTopics() {
-      return this.topics.filter(topic => (topic.forum_id === this.forum_id) && (topic.author_posts.length > 1) && (this.isToday(topic.last_post_time)));
+      return this.topics
+        .filter(t => (t.forum_id === this.forum_id) && (t.author_posts.length > 1) && (this.isToday(t.last_post_time)))
+        .sort((t1, t2) => t2.author_posts.length - t1.author_posts.length);
     }
   },
   watch: {

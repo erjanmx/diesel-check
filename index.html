@@ -34,9 +34,9 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Название</th>
+            <th>Тема</th>
             <th>Автор</th>
-            <th>Ответов автора за сегодня</th>
+            <th>Сообщений автора за сегодня</th>
           </tr>
         </thead>
         <tbody>
@@ -50,7 +50,7 @@
             <td>
               <a target="_blank" :href="getTopicAuthorHref(topic)">{{ topic.author_name }}</a>
             </td>
-            <td>
+            <td class="has-text-centered">
               <span :aria-label="getTopicPosts(topic)" data-balloon-break data-balloon-pos="left">{{ topic.author_posts.length }}</span>
             </td>
           </tr>

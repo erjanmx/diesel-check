@@ -43,7 +43,7 @@ function saveTopic(data) {
     logger.debug('Updating topic', data);
     
     topic.assign({ 
-      author_posts: _.unionWith(data.author_posts, topic.value().author_posts.filter(post => isToday(post.time)), _.isEqual),
+      author_posts: _.sortBy(_.unionWith(data.author_posts, topic.value().author_posts.filter(post => isToday(post.time)), _.isEqual), 'time'),
       last_post_time: data.last_post_time,
     }).write();
   } else {
