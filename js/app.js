@@ -56,7 +56,7 @@ new Vue({
       return 'http://diesel.elcat.kg?showuser=' + topic.author_id;
     },
     getTopicPosts(topic) {
-      return "Время\n\n" + topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).join("\n");
+      return "Время\n\n" + topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).sort().join("\n");
     },
     isToday(time) {
       return moment(time).isSame(moment().utcOffset(+6), 'day');
