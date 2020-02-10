@@ -116,6 +116,8 @@ const forumCrawler = new crawler({
 
 topicCrawler.on('drain', function () {
   io.emit('topics', 'updated');
+
+  logger.debug('topicCrawler queue has been fully processed');
 });
 
 function queueForums() {
