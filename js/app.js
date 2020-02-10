@@ -17,12 +17,11 @@ new Vue({
 
     loading: false,
     last_update: null,
-    firstRowBalloonVisible: false,
   },
   computed: {
     filteredTopics() {
       return this.topics
-        .filter(t => (t.forum_id === this.forum_id) && (this.isToday(t.last_post_time)))
+        .filter(t => (t.forum_id === this.forum_id) && (this.isToday(t.last_post_time)) && (t.author_posts.length))
         .sort((t1, t2) => t2.author_posts.length - t1.author_posts.length);
     }
   },
@@ -31,9 +30,6 @@ new Vue({
       if (this.forums.length) {
         let p = (val !== 'null') ? `?f=${val}` : '';
         this.$router.replace(p);
-
-        setTimeout(() => this.firstRowBalloonVisible = true, 500);
-        setTimeout(() => this.firstRowBalloonVisible = false, 3000);
       }
     },
   },
@@ -59,8 +55,8 @@ new Vue({
     getTopicAuthorHref(topic) {
       return 'http://diesel.elcat.kg?showuser=' + topic.author_id;
     },
-    getTopicPosts(topic) {
-      return "Время\n\n" + topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).sort().join("\n");
+    getTopicPostsTime(topic) {
+      return topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).sort();
     },
     isToday(time) {
       return moment.parseZone(time).isSame(moment().utcOffset(+6), 'day');

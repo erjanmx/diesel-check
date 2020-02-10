@@ -37,7 +37,7 @@
             <th>#</th>
             <th>Тема</th>
             <th>Автор</th>
-            <th>Сообщений автора за сегодня</th>
+            <th style="width: 20%"><abbr title="Время ответов автора за сегодня">Время ответов автора</abbr></th>
           </tr>
         </thead>
         <tbody>
@@ -52,9 +52,9 @@
               <a target="_blank" :href="getTopicAuthorHref(topic)">{{ topic.author_name }}</a>
             </td>
             <td>
-              <span v-if="i === 0" :aria-label="getTopicPosts(topic)" :data-balloon-visible="firstRowBalloonVisible" data-balloon-break data-balloon-pos="right">{{ topic.author_posts.length }}</span>
-              
-              <span v-else :aria-label="getTopicPosts(topic)" data-balloon-break data-balloon-pos="right">{{ topic.author_posts.length }}</span>
+              <div class="tags">
+                <span v-for="time in getTopicPostsTime(topic)" class="tag">{{ time }}</span>
+              </div>
             </td>
           </tr>
         </tbody>
