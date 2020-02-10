@@ -2,9 +2,9 @@ require('dotenv').config();
 
 const _ = require('lodash');
 const cron = require('node-cron');
-const moment = require('moment');
 const winston = require('winston');
 const crawler = require("crawler");
+const moment = require('moment-timezone');
 
 const lowDb = require('lowdb');
 const fileSync = require('lowdb/adapters/FileSync');
@@ -20,9 +20,14 @@ const logger = winston.createLogger({
   transports: [ new winston.transports.Console() ]
 });
 
+const timeZone = process.env.TIME_ZONE || "Asia/Almaty"; 
+
+moment.tz.setDefault(timeZone);
+
 function isToday(time) {
-  return moment.parseZone(time).isSame(moment().utcOffset(+6), 'day');
+  return moment.parseZone(time).isSame(moment(), 'day');
 }
+console.log(moment().format());
 
 // Database
 dbTopics.defaults({ topics: [] }).write()
@@ -53,7 +58,7 @@ function saveTopic(data) {
     dbTopics.get('topics').push(data).write();
   }
 
-  dbTopics.set('updated_at', moment().utcOffset(+6).format()).write();
+  dbTopics.set('updated_at', moment().format()).write();
 }
 
 function removePastTopics() {
@@ -132,10 +137,10 @@ const queueCronExpression = process.env.QUEUE_CRON_EXPRESSION;
 
 if (queueCronExpression) {
   cron.schedule(queueCronExpression, () => { queueForums() }, {
-    timezone: "Asia/Almaty"
+    timezone: timeZone,
   });
 
-  logger.debug(`Queueing cron enabled with '${queueCronExpression}' expression`);
+  logger.debug(`Queueing cron enabled with '${queueCronExpression}' expression using timezone '${timeZone}'`);
 }
 
 if (queueOnStart == 'TRUE') {

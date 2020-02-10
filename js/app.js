@@ -1,5 +1,7 @@
 const socket = io();
 
+moment.tz.setDefault("Asia/Almaty");
+
 const router = new VueRouter({
   mode: 'history',
   routes: []
@@ -59,7 +61,7 @@ new Vue({
       return topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).sort();
     },
     isToday(time) {
-      return moment.parseZone(time).isSame(moment().utcOffset(+6), 'day');
+      return moment.parseZone(time).isSame(moment(), 'day');
     },
   },
   mounted() {
