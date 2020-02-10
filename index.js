@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const _ = require('lodash');
+const cron = require('node-cron');
 const moment = require('moment');
 const winston = require('winston');
 const crawler = require("crawler");
@@ -127,24 +128,23 @@ function queueForums() {
 }
 
 const queueOnStart = process.env.QUEUE_ON_START || 'FALSE'; 
-const queueingEnabled = process.env.QUEUEING_ENABLED || 'TRUE';  
-const queueingInterval = process.env.QUEUEING_INTERVAL_IN_MINUTES || 240;  
+const queueCronExpression = process.env.QUEUE_CRON_EXPRESSION;  
+
+if (queueCronExpression) {
+  cron.schedule(queueCronExpression, () => { queueForums() }, {
+    timezone: "Asia/Almaty"
+  });
+
+  logger.debug(`Queueing cron enabled with '${queueCronExpression}' expression`);
+}
+
+if (queueOnStart == 'TRUE') {
+  queueForums();
+}
 
 // Web server
 app.use(express.static(__dirname));
-
 const server = app.listen(process.env.PORT || 3000, () => {  
-  logger.debug('Server started on port: ' + server.address().port);
-
-  if (queueOnStart == 'TRUE') {
-    queueForums();
-  }    
-  if (queueingEnabled == 'TRUE') {
-    setInterval(() => { queueForums() }, 1000 * 60 * queueingInterval);
-
-    logger.info(`Queueing enabled with ${queueingInterval} minutes interval`);
-  }
-  console.log("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
+  logger.info("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
-
 const io = socketIO(server);
