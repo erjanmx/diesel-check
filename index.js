@@ -27,7 +27,8 @@ moment.tz.setDefault(timeZone);
 function isToday(time) {
   return moment.parseZone(time).isSame(moment(), 'day');
 }
-console.log(moment().format());
+
+logger.debug("Current datetime: " + moment().format());
 
 // Database
 dbTopics.defaults({ topics: [] }).write()
