@@ -24,6 +24,12 @@ new Vue({
     filteredTopics() {
       return this.topics
         .filter(t => (t.forum_id === this.forum_id) && (this.isToday(t.last_post_time)) && (t.author_posts.length))
+        .sort((t1, t2) => {
+          if (t1.last_post_time < t2.last_post_time) return 1;
+          if (t1.last_post_time > t2.last_post_time) return -1;
+          
+          return 0;
+        })
         .sort((t1, t2) => t2.author_posts.length - t1.author_posts.length);
     }
   },
