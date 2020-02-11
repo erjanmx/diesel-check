@@ -17,8 +17,27 @@ const socketIO = require('socket.io');
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'debug',
-  transports: [ new winston.transports.Console() ]
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.printf(({ level, message, timestamp, ...meta }) => {
+      let stringifiedMeta = JSON.stringify(meta);
+      message = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+
+      if (stringifiedMeta !== '{}') {
+        message = `${message} ${stringifiedMeta}`;
+      }
+
+      return message;
+    }),
+  ),
+  transports: [ 
+    new winston.transports.File({ filename: 'log.log' })
+  ]
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console());
+}
 
 const timeZone = process.env.TIME_ZONE || "Asia/Almaty"; 
 
@@ -27,8 +46,6 @@ moment.tz.setDefault(timeZone);
 function isToday(time) {
   return moment.parseZone(time).isSame(moment(), 'day');
 }
-
-logger.debug("Current datetime: " + moment().format());
 
 // Database
 dbTopics.defaults({ topics: [] }).write()
