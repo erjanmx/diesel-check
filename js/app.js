@@ -57,12 +57,6 @@ new Vue({
         if (this.forum_id) { this.forum_id = parseInt(this.forum_id)}
       });
     },
-    getTopicHref(topic) {
-      return 'http://diesel.elcat.kg?showtopic=' + topic.id;
-    },
-    getTopicAuthorHref(topic) {
-      return 'http://diesel.elcat.kg?showuser=' + topic.author_id;
-    },
     getTopicPostsTime(topic) {
       return topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).sort();
     },

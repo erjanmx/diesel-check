@@ -30,8 +30,8 @@
     </div>
 
     <p v-show="loading">Загрузка тем...</p>
-    <div class="table-container" style="padding-bottom: 50px;">
-      <table v-show="!loading" class="table is-fullwidth">
+    <div v-show="!loading" class="table-container">
+      <table class="table is-fullwidth">
         <thead>
           <tr>
             <th>#</th>
@@ -44,12 +44,12 @@
           <tr v-show="!loading && !filteredTopics.length"><td colspan="4">Нет тем для отображения</td></tr>
           
           <tr v-show="filteredTopics.length" v-for="(topic, i) in filteredTopics" v-bind:key="topic.id">
-            <td>{{ i + 1}}</td>
+            <td>{{ i + 1 }}</td>
             <td>
-              <a target="_blank" :href="getTopicHref(topic)">{{ topic.title }}</a>
+              <a target="_blank" :href="'http://diesel.elcat.kg?showtopic=' + topic.id">{{ topic.title }}</a>
             </td>
             <td>
-              <a target="_blank" :href="getTopicAuthorHref(topic)">{{ topic.author_name }}</a>
+              <a target="_blank" :href="'http://diesel.elcat.kg?showuser=' + topic.author_id">{{ topic.author_name }}</a>
             </td>
             <td>
               <div class="tags">
