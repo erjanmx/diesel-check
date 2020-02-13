@@ -17,13 +17,17 @@ new Vue({
     forums: [],
     forum_id: null,
 
+    search: '',
     loading: false,
     last_update: null,
   },
   computed: {
     filteredTopics() {
       return this.topics
-        .filter(t => (t.forum_id === this.forum_id) && (this.isToday(t.last_post_time)) && (t.author_posts.length))
+        .filter(t => t.author_posts.length > 0)
+        .filter(t => t.forum_id === this.forum_id)
+        .filter(t => this.isToday(t.last_post_time))
+        .filter(t => t.title.toLowerCase().includes(this.search.toLowerCase()) || t.author_name.toLowerCase().includes(this.search.toLowerCase()))
         .sort((t1, t2) => {
           if (t1.last_post_time < t2.last_post_time) return 1;
           if (t1.last_post_time > t2.last_post_time) return -1;
@@ -57,8 +61,8 @@ new Vue({
         if (this.forum_id) { this.forum_id = parseInt(this.forum_id)}
       });
     },
-    getTopicPostsTime(topic) {
-      return topic.author_posts.map((post) => moment.parseZone(post.time).format("HH:mm")).sort();
+    getTopicPosts(topic) {
+      return _.sortBy(topic.author_posts, 'id').filter(post => this.isToday(post.time));
     },
     isToday(time) {
       return moment.parseZone(time).isSame(moment(), 'day');

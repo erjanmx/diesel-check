@@ -14,21 +14,27 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/balloon-css/1.0.4/balloon.min.css">
 </head>
 <body>
   <div id="app" class="container is-fluid is-widescreen">
     <p class="is-size-7" v-if="last_update">Последнее обновление: {{ last_update.format("DD.MM.YYYY HH:mm") }}</p>      
-    <div class="control">
-      <div class="select">
-        <select v-model="forum_id">
-          <option value="null">Выберите раздел</option>
-          <option v-for="forum in forums" v-bind:value="forum.id">
-            {{ forum.title }}
-          </option>
-        </select>
+
+    <div class="columns">
+      <div class="column is-variable is-3 is-two-third">
+        <div class="select">
+          <select v-model="forum_id">
+            <option value="null">Выберите раздел</option>
+            <option v-for="forum in forums" v-bind:value="forum.id">
+              {{ forum.title }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="column">
+        <input v-model="search" type="text" class="input" placeholder="Поиск..." />
       </div>
     </div>
-
     <p v-show="loading">Загрузка тем...</p>
     <div v-show="!loading" class="table-container">
       <table class="table is-fullwidth">
@@ -53,7 +59,7 @@
             </td>
             <td>
               <div class="tags">
-                <span v-for="time in getTopicPostsTime(topic)" class="tag">{{ time }}</span>
+                <span v-for="post in getTopicPosts(topic)" class="tag" :aria-label="'ID сообщения: ' + post.id" data-balloon-pos="up">{{ moment.parseZone(post.time).format('HH:mm') }}</span>
               </div>
             </td>
           </tr>
