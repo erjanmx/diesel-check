@@ -75,8 +75,9 @@ new Vue({
     }
 
     this.loadForums();
+    this.loadTopics();
 
     socket.on('topics', () => { this.loadTopics() });
-    socket.on('connect', () => { this.loadTopics() });
+    socket.on('reconnect', () => { this.loadTopics() });
   }
 });
