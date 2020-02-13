@@ -26,5 +26,5 @@
 - Хранение данных [lowdb](https://github.com/typicode/lowdb)
 - Web - [express](https://github.com/expressjs/express) + [vue](https://github.com/vuejs/vue)
 - Логирование [winston](https://github.com/winstonjs/winston)
-- [socket.io](https://github.com/socketio/socket.io), [moment](https://github.com/moment/moment), [lodash](https://github.com/lodash/lodash), [axios](https://github.com/axios/axios), [dotenv](https://github.com/motdotla/dotenv), [node-cron](https://github.com/node-cron/node-cron)
+- [socket.io](https://github.com/socketio/socket.io), [moment](https://github.com/moment/moment), [lodash](https://github.com/lodash/lodash), [axios](https://github.com/axios/axios), [dotenv](https://github.com/motdotla/dotenv), [node-cron](https://github.com/node-cron/node-cron), [clipboard.js](https://github.com/zenorocha/clipboard.js)
 - Стили [bulma](https://github.com/jgthms/bulma), [balloon.css](https://github.com/kazzkiq/balloon.css)

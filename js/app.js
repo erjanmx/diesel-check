@@ -1,4 +1,5 @@
 const socket = io();
+new ClipboardJS('.tag');
 
 moment.tz.setDefault("Asia/Almaty");
 
