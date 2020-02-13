@@ -1,4 +1,3 @@
-const socket = io();
 new ClipboardJS('.tag');
 
 moment.tz.setDefault("Asia/Almaty");
@@ -77,7 +76,12 @@ new Vue({
     this.loadForums();
     this.loadTopics();
 
-    socket.on('topics', () => { this.loadTopics() });
-    socket.on('reconnect', () => { this.loadTopics() });
+    try {
+      const socket = io();
+      socket.on('topics', () => { this.loadTopics() });
+      socket.on('reconnect', () => { this.loadTopics() });
+    } catch (e) {
+      console.error('Socket connection is not available');
+    }
   }
 });
