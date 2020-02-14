@@ -17,6 +17,9 @@ const socketIO = require('socket.io');
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'debug',
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), winston.format.json()
+  ),
   transports: [ new winston.transports.Console() ]
 });
 
@@ -27,8 +30,6 @@ moment.tz.setDefault(timeZone);
 function isToday(time) {
   return moment.parseZone(time).isSame(moment(), 'day');
 }
-
-logger.debug("Current datetime: " + moment().format());
 
 // Database
 dbTopics.defaults({ topics: [] }).write()

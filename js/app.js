@@ -15,7 +15,7 @@ new Vue({
   data: {
     topics: [],
     forums: [],
-    forum_id: null,
+    forum_id: '',
 
     search: '',
     loading: false,
@@ -24,9 +24,9 @@ new Vue({
   computed: {
     filteredTopics() {
       return this.topics
-        .filter(t => t.author_posts.length > 0)
-        .filter(t => t.forum_id === this.forum_id)
         .filter(t => this.isToday(t.last_post_time))
+        .filter(t => this.forum_id === '' || t.forum_id === this.forum_id)
+        .filter(t => this.showForumColumn ? t.author_posts.length > 1 : t.author_posts.length > 0)
         .filter(t => t.title.toLowerCase().includes(this.search.toLowerCase()) || t.author_name.toLowerCase().includes(this.search.toLowerCase()))
         .sort((t1, t2) => {
           if (t1.last_post_time < t2.last_post_time) return 1;
@@ -35,12 +35,18 @@ new Vue({
           return 0;
         })
         .sort((t1, t2) => t2.author_posts.length - t1.author_posts.length);
+    },
+    showForumColumn() {
+      return this.forum_id === '';
+    },
+    forumsMap() {
+      return _.keyBy(this.forums, 'id');
     }
   },
   watch: {
     forum_id: function (val) {
       if (this.forums.length) {
-        let p = (val !== 'null') ? `?f=${val}` : '';
+        let p = (val !== '') ? `?f=${val}` : '';
         this.$router.replace(p);
       }
     },
