@@ -1,6 +1,8 @@
+const cwd = process.cwd();
 require('dotenv').config();
 
 const _ = require('lodash');
+// const open = require('open');
 const cron = require('node-cron');
 const winston = require('winston');
 const crawler = require("crawler");
@@ -8,7 +10,7 @@ const moment = require('moment-timezone');
 
 const lowDb = require('lowdb');
 const fileSync = require('lowdb/adapters/FileSync');
-const dbTopics = lowDb(new fileSync('./db/topics.json'));
+const dbTopics = lowDb(new fileSync(cwd + '/db/topics.json'));
 
 const express = require('express');
 const app = express();
@@ -16,14 +18,14 @@ const socketIO = require('socket.io');
 
 
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'debug',
+  level: process.env.LOG_LEVEL || 'info',
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), winston.format.json()
   ),
   transports: [ new winston.transports.Console() ]
 });
 
-const timeZone = process.env.TIME_ZONE || "Asia/Almaty"; 
+const timeZone = "Asia/Almaty"; 
 
 moment.tz.setDefault(timeZone);
 
@@ -64,12 +66,14 @@ function saveTopic(data) {
 }
 
 function removePastTopics() {
+  logger.debug('Removing past topics');
+
   dbTopics.get('topics').remove(topic => !isToday(topic.last_post_time)).write();
 }
 
 // Crawlers
 const topicCrawler = new crawler({
-  rateLimit: process.env.CRAWLER_RATE_LIMIT || 100,
+  rateLimit: process.env.CRAWLER_RATE_LIMIT || 0,
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
@@ -118,13 +122,15 @@ const forumCrawler = new crawler({
 topicCrawler.on('drain', function () {
   io.emit('topics', 'updated');
 
-  logger.debug('topicCrawler queue has been fully processed');
+  logger.info('Forums crawling has finished');
 });
 
 function queueForums() {
   removePastTopics();
 
-  let forums = lowDb(new fileSync('./db/forums.json')).get('forums').value();
+  logger.info('Forums crawling has started');
+
+  let forums = lowDb(new fileSync(cwd + '/db/forums.json')).get('forums').value();
   
   for (forum of forums) {
     logger.debug('Queueing forum: ' + forum.id);
@@ -136,24 +142,22 @@ function queueForums() {
   }
 }
 
-const queueOnStart = process.env.QUEUE_ON_START || 'FALSE'; 
-const queueCronExpression = process.env.QUEUE_CRON_EXPRESSION;  
+const queueOnStart = process.env.QUEUE_ON_START || 'TRUE'; 
+const queueCronExpression = process.env.QUEUE_CRON_EXPRESSION || '0 * * * *';  
 
-if (queueCronExpression) {
-  cron.schedule(queueCronExpression, () => { queueForums() }, {
-    timezone: timeZone,
-  });
-
-  logger.debug(`Queueing cron enabled with '${queueCronExpression}' expression using timezone '${timeZone}'`);
-}
+cron.schedule(queueCronExpression, () => { queueForums() }, {
+  timezone: timeZone,
+});
+logger.info(`Queueing cron enabled with '${queueCronExpression}' expression using timezone '${timeZone}'`);
 
 if (queueOnStart == 'TRUE') {
   queueForums();
 }
 
 // Web server
-app.use(express.static(__dirname));
+app.use(express.static(cwd));
 const server = app.listen(process.env.PORT || 3000, () => {  
+  // open("http://127.0.0.1:" + server.address().port);
   logger.info("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
 const io = socketIO(server);
