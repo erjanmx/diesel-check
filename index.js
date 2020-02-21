@@ -2,8 +2,8 @@ const cwd = process.cwd();
 require('dotenv').config();
 
 const _ = require('lodash');
-// const open = require('open');
 const cron = require('node-cron');
+const openUrl = require('openurl');
 const winston = require('winston');
 const crawler = require("crawler");
 const moment = require('moment-timezone');
@@ -157,7 +157,7 @@ if (queueOnStart == 'TRUE') {
 // Web server
 app.use(express.static(cwd));
 const server = app.listen(process.env.PORT || 3000, () => {  
-  // open("http://127.0.0.1:" + server.address().port);
+  openUrl.open("http://127.0.0.1:" + server.address().port);
   logger.info("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
 const io = socketIO(server);

@@ -24,7 +24,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "node-cron": "^2.0.3",
-    "open": "^7.0.2",
+    "openurl": "^1.1.1",
     "shx": "^0.3.2",
     "socket.io": "^2.3.0",
     "winston": "^3.2.1"
