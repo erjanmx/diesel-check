@@ -6,16 +6,17 @@
 
 Данное приложение сможет помочь модераторам в проверке, периодически собирая информацию обо всех темах в разных разделах и показывать их в структурированном виде. 
 
+Список отслеживаемых разделов форума находится [здесь](https://github.com/erjanmx/diesel-check/blob/master/db/forums.json).
+
 Приложение доступно по адресу https://erjanmx.github.io/diesel-check/
 
 ## Локальный запуск
 
 Для более частых проверок возможен запуск скрипта на локальной машине, для этого необходим [nodejs](https://nodejs.org/)
 
+Склонировать репозиторий или [скачать zip](https://github.com/erjanmx/diesel-check/archive/master.zip) и внутри директории проекта выполнить следующие команды:
+
 ```bash
- git clone git@github.com:erjanmx/diesel-check.git
- cd diesel-check 
- cp .env.example .env
  npm install
  npm start
 ```
