@@ -1,4 +1,3 @@
-const cwd = process.cwd();
 require('dotenv').config();
 
 const _ = require('lodash');
@@ -8,6 +7,7 @@ const winston = require('winston');
 const crawler = require("crawler");
 const moment = require('moment-timezone');
 
+const cwd = process.cwd();
 const lowDb = require('lowdb');
 const fileSync = require('lowdb/adapters/FileSync');
 const dbTopics = lowDb(new fileSync(cwd + '/db/topics.json'));
