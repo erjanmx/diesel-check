@@ -3,9 +3,13 @@
   "version": "0.0.1",
   "description": "Check diesel.elcat.kg forum for bad user behaviour",
   "main": "index.js",
+  "bin": {
+    "diesel-checker": "index.js"
+  },
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "pkg package.json"
   },
   "author": "erjanmx@gmail.com",
   "license": "MIT",
@@ -19,6 +23,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "node-cron": "^2.0.3",
+    "open": "^7.0.2",
     "socket.io": "^2.3.0",
     "winston": "^3.2.1"
   }
