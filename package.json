@@ -10,7 +10,7 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "shx cp -n .env.example .env",
-    "package": "pkg package.json && cp ./node_modules/open/xdg-open ./xdg-open"
+    "package": "pkg package.json"
   },
   "author": "erjanmx@gmail.com",
   "license": "MIT",
@@ -24,7 +24,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "node-cron": "^2.0.3",
-    "openurl": "^1.1.1",
+    "open": "^7.0.2",
     "shx": "^0.3.2",
     "socket.io": "^2.3.0",
     "winston": "^3.2.1"
