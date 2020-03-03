@@ -2,12 +2,13 @@ require('dotenv').config();
 
 const _ = require('lodash');
 const open = require('open');
+const path = require('path');
 const cron = require('node-cron');
 const winston = require('winston');
 const crawler = require("crawler");
 const moment = require('moment-timezone');
 
-const cwd = process.cwd();
+const cwd = process.pkg ? path.dirname(process.execPath) : process.cwd();
 const lowDb = require('lowdb');
 const fileSync = require('lowdb/adapters/FileSync');
 const dbTopics = lowDb(new fileSync(cwd + '/db/topics.json'));
