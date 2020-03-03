@@ -12,7 +12,7 @@
 
 ## Локальный запуск
 
-Для более частых проверок возможен запуск программы на своем компьютере, для этого необходимо [Скачать zip архив проекта](https://github.com/erjanmx/diesel-check/releases/download/latest/diesel-checker.zip) и запустить файл в зависимости от вашей операционной системы:
+Для более частых проверок возможен запуск программы на своем компьютере, для этого необходимо [Скачать zip архив проекта](http://github.com/erjanmx/diesel-check/releases/latest/download/diesel-checker.zip) и запустить файл в зависимости от вашей операционной системы:
 
 #### На Windows
 > diesel-checker-win.exe
