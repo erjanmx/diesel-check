@@ -50,6 +50,7 @@ new Vue({
         let p = (val !== '') ? `?f=${val}` : '';
         this.$router.replace(p);
       }
+      this.showAll = false;
     },
   },
   methods: {

@@ -54,7 +54,7 @@
             <td colspan="4">
               <span v-show="!showAll">
                 Нет тем нарушителей для отображения
-                <a v-on:click="showAll=true">(показать все темы)</a>            
+                <a v-on:click="showAll=true; search='';">(показать все темы)</a>            
               </span>              
               <span v-show="showAll">
                 Нет тем для отображения
