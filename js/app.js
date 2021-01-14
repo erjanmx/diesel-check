@@ -27,7 +27,7 @@ new Vue({
       return this.topics
         .filter(t => this.isToday(t.last_post_time))
         .filter(t => this.forum_id === '' || t.forum_id === this.forum_id)
-        .filter(t => !this.showAll ? t.author_posts.length > 1 : t.author_posts.length > 0)
+        .filter(t => this.showAll ? t.author_posts.length > 0 : this.filterClosePosts(t.author_posts).length > 1)
         .filter(t => t.title.toLowerCase().includes(this.search.toLowerCase()) || t.author_name.toLowerCase().includes(this.search.toLowerCase()))
         .sort((t1, t2) => {
           if (t1.last_post_time < t2.last_post_time) return 1;
@@ -75,6 +75,11 @@ new Vue({
     isToday(time) {
       return moment.parseZone(time).isSame(moment(), 'day');
     },
+    filterClosePosts(posts) {
+      return posts.filter((post, i) => 
+        !i || Math.abs(moment(posts[i-1].time).diff(moment(post.time), 'minutes')) > 15
+      );
+    }
   },
   mounted() {
     if (this.$route && this.$route.query.f) {
