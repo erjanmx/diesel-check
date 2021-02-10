@@ -85,9 +85,9 @@ new Vue({
       );
     },
     filtersHandler() {
-      const p = `/?f=${this.forum_id}&s=${this.search}&showAll=${this.showAll}`;
+      const p = `?f=${this.forum_id}&s=${this.search}&showAll=${this.showAll}`;
 
-      if (this.$router.currentRoute.fullPath != p) {
+      if (this.$router.currentRoute.fullPath != `/${p}`) {
         this.$router.replace(p);
       }
     },
