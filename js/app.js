@@ -45,13 +45,17 @@ new Vue({
     }
   },
   watch: {
-    forum_id: function (val) {
+    forum_id: function () {
       if (this.forums.length) {
-        let p = (val !== '') ? `?f=${val}` : '';
-        this.$router.replace(p);
+        this.filtersHandler();
       }
-      this.showAll = false;
     },
+    search: function () {
+      this.filtersHandler();
+    },
+    showAll: function () {
+      this.filtersHandler();
+    }
   },
   methods: {
     loadTopics() {
@@ -79,11 +83,26 @@ new Vue({
       return posts.filter((post, i) => 
         !i || Math.abs(moment(posts[i-1].time).diff(moment(post.time), 'minutes')) > 15
       );
-    }
+    },
+    filtersHandler() {
+      const p = `/?f=${this.forum_id}&s=${this.search}&showAll=${this.showAll}`;
+
+      if (this.$router.currentRoute.fullPath != p) {
+        this.$router.replace(p);
+      }
+    },
   },
   mounted() {
-    if (this.$route && this.$route.query.f) {
-      this.forum_id = this.$route.query.f;
+    if (this.$route) {
+      if (this.$route.query.f) {
+        this.forum_id = this.$route.query.f;
+      }
+      if (this.$route.query.s) {
+        this.search = this.$route.query.s;
+      }
+      if (this.$route.query.showAll) {
+        this.showAll = this.$route.query.showAll === 'true';
+      }
     }
 
     this.loadForums();

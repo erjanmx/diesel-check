@@ -43,12 +43,18 @@
         </div>
       </div>
       <div class="column">
-        <input v-model="search" type="text" class="input" placeholder="Поиск..." style="width: 95%"/>
+        <input v-model="search" type="search" class="input" placeholder="Поиск..." style="width: 95%"/>
       </div>
     </div>
     <p v-show="loading">Загрузка тем...</p>
     <div v-show="!loading" class="table-container">
-      <p class="has-text-weight-bold">Список тем за текущие сутки</p>
+      <p>
+        <span class="has-text-weight-bold">
+          Список тем <span v-show="!showAll">нарушителей </span> за текущие сутки
+        </span>
+        &nbsp;
+        <input type="checkbox" v-model="showAll">Показать все
+      </p>
       <table class="table is-fullwidth">
         <thead>
           <tr>
@@ -62,13 +68,7 @@
         <tbody>
           <tr v-show="!loading && !filteredTopics.length">
             <td colspan="4">
-              <span v-show="!showAll">
-                Нет тем нарушителей для отображения
-                <a v-on:click="showAll=true; search='';">(показать все темы)</a>            
-              </span>              
-              <span v-show="showAll">
-                Нет тем для отображения
-              </span>
+              Нет тем для отображения
             </td>
           </tr>
           

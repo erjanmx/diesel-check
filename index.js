@@ -17,6 +17,9 @@ const express = require('express');
 const app = express();
 const socketIO = require('socket.io');
 
+const crawlerProxy = process.env.CRAWLER_PROXY || '';  
+const queueOnStart = process.env.QUEUE_ON_START || 'TRUE'; 
+const queueCronExpression = process.env.QUEUE_CRON_EXPRESSION || '0 * * * *';  
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -49,7 +52,7 @@ function saveTopic(data) {
 
   data.last_post_time = _.last(data.author_posts).time;
 
-  let topic = dbTopics.get('topics').find({ id: data.id });
+  const topic = dbTopics.get('topics').find({ id: data.id });
 
   if (topic.value()) {
     logger.debug('Updating topic', data);
@@ -74,12 +77,13 @@ function removePastTopics() {
 
 // Crawlers
 const topicCrawler = new crawler({
+  proxy: crawlerProxy,
   rateLimit: process.env.CRAWLER_RATE_LIMIT || 0,
   callback: (_error, res, done) => {
     logger.debug('Parsing topic page: ' + res.request.uri.href);
 
     const $ = res.$;
-    let topic = {
+    const topic = {
       id: $('body').find('input[name="t"]').val(),
       title: $(".ipsType_pagetitle").text(),
       forum_id: res.options.forum_id,
@@ -89,7 +93,7 @@ const topicCrawler = new crawler({
     };
 
     $(".post_block").each(function () {
-      let post = $(this);
+      const post = $(this);
       
       if (topic.author_id == post.find("[hovercard-ref=member]").attr('hovercard-id')) {
         topic.author_posts.push({
@@ -104,6 +108,7 @@ const topicCrawler = new crawler({
 });
 
 const forumCrawler = new crawler({
+  proxy: crawlerProxy,
   callback: (_error, res, done) => {
     logger.debug('Parsing forum page: ' + res.request.uri.href);
 
@@ -131,7 +136,7 @@ function queueForums() {
 
   logger.info('Forums crawling has started');
 
-  let forums = lowDb(new fileSync(cwd + '/db/forums.json')).get('forums').value();
+  const forums = lowDb(new fileSync(cwd + '/db/forums.json')).get('forums').value();
   
   for (forum of forums) {
     logger.debug('Queueing forum: ' + forum.id);
@@ -142,9 +147,6 @@ function queueForums() {
     });
   }
 }
-
-const queueOnStart = process.env.QUEUE_ON_START || 'TRUE'; 
-const queueCronExpression = process.env.QUEUE_CRON_EXPRESSION || '0 * * * *';  
 
 cron.schedule(queueCronExpression, () => { queueForums() }, {
   timezone: timeZone,
