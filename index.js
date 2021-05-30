@@ -159,7 +159,7 @@ if (queueOnStart == 'TRUE') {
 
 // Web server
 app.use(express.static(cwd));
-const server = app.listen(process.env.PORT || 3000, () => {  
+const server = app.listen(process.env.PORT || 3000, '127.0.0.1', () => {  
   open("http://127.0.0.1:" + server.address().port);
   logger.info("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
 });
