@@ -127,7 +127,9 @@ const forumCrawler = new crawler({
 });
 
 topicCrawler.on('drain', function () {
-  io.emit('topics', 'updated');
+  try {
+    io.emit('topics', 'updated');
+  } catch (e) {}
 
   logger.info('Forums crawling has finished');
 });
