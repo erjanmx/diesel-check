@@ -19,6 +19,7 @@ const socketIO = require('socket.io');
 
 const crawlerProxy = process.env.CRAWLER_PROXY || '';  
 const queueOnStart = process.env.QUEUE_ON_START || 'TRUE'; 
+const runAsService = process.env.RUN_AS_SERVICE || 'TRUE'; 
 const queueCronExpression = process.env.QUEUE_CRON_EXPRESSION || '0 * * * *';  
 
 const logger = winston.createLogger({
@@ -148,19 +149,22 @@ function queueForums() {
   }
 }
 
-cron.schedule(queueCronExpression, () => { queueForums() }, {
-  timezone: timeZone,
-});
-logger.info(`Queueing cron enabled with '${queueCronExpression}' expression using timezone '${timeZone}'`);
-
 if (queueOnStart == 'TRUE') {
   queueForums();
 }
 
-// Web server
-app.use(express.static(cwd));
-const server = app.listen(process.env.PORT || 3000, '127.0.0.1', () => {  
-  open("http://127.0.0.1:" + server.address().port);
-  logger.info("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
-});
-const io = socketIO(server);
+if (runAsService == 'TRUE') {
+  // Cron job
+  cron.schedule(queueCronExpression, () => { queueForums() }, {
+    timezone: timeZone,
+  });
+  logger.info(`Queueing cron enabled with '${queueCronExpression}' expression using timezone '${timeZone}'`);
+
+  // Web server
+  app.use(express.static(cwd));
+  const server = app.listen(process.env.PORT || 3000, '127.0.0.1', () => {  
+    open("http://127.0.0.1:" + server.address().port);
+    logger.info("Локальный сервер запущен и доступен в браузере по адресу: http://127.0.0.1:" + server.address().port);
+  });
+  const io = socketIO(server);
+}
