@@ -1,6 +1,6 @@
 {
   "name": "diesel-checker",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "description": "Check diesel.elcat.kg forum for bad user behaviour",
   "main": "index.js",
   "bin": {
