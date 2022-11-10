@@ -21,7 +21,7 @@
     "lodash": "^4.17.21",
     "lowdb": "^1.0.0",
     "moment": "^2.29.2",
-    "moment-timezone": "^0.5.27",
+    "moment-timezone": "^0.5.35",
     "node-cron": "^2.0.3",
     "open": "^7.0.2",
     "socket.io": "^2.4.0",
