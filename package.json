@@ -12,6 +12,9 @@
     "package": "pkg package.json && zip -r diesel-checker.zip db js .env index.html diesel-checker-*"
   },
   "author": "erjanmx@gmail.com",
+  "engines": {
+    "node": ">=8 <14"
+  },
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
