@@ -1,4 +1,5 @@
 .env
 diesel-check*
+*.log
 
 node_modules/
