@@ -20,14 +20,14 @@
     "cheerio": "^1.0.0-rc.3",
     "crawler": "^1.4.0",
     "dotenv": "^8.6.0",
-    "express": "^4.19.2",
+    "express": "^4.21.1",
     "lodash": "^4.17.21",
     "lowdb": "^1.0.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.35",
     "node-cron": "^2.0.3",
     "open": "^7.0.2",
-    "socket.io": "^2.5.0",
+    "socket.io": "^4.8.0",
     "winston": "^3.2.1"
   }
 }
