@@ -20,7 +20,7 @@
     "cheerio": "^1.0.0-rc.3",
     "crawler": "^1.4.0",
     "dotenv": "^8.6.0",
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "lodash": "^4.17.21",
     "lowdb": "^1.0.0",
     "moment": "^2.29.4",
